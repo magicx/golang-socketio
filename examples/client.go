@@ -28,12 +28,19 @@ func sendJoin(c *gosocketio.Client) {
 	}
 }
 
+func onConn(h *gosocketio.Channel) {
+	log.Println(gosocketio.OnConnection)
+}
+
 func main() {
 	runtime.GOMAXPROCS(runtime.NumCPU())
 
-	c, err := gosocketio.Dial(
+//	c, err := gosocketio.Dial(
+	c, err := gosocketio.DialwithConnAndHeader(
 		gosocketio.GetUrl("localhost", 3811, false),
-		transport.GetDefaultWebsocketTransport())
+		transport.GetDefaultWebsocketTransport(),
+		onConn,
+		nil)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -46,19 +53,19 @@ func main() {
 	}
 
 	err = c.On(gosocketio.OnDisconnection, func(h *gosocketio.Channel) {
-		log.Fatal("Disconnected")
+		log.Println(gosocketio.OnDisconnection)
 	})
 	if err != nil {
 		log.Fatal(err)
 	}
-
+/*
 	err = c.On(gosocketio.OnConnection, func(h *gosocketio.Channel) {
 		log.Println("Connected")
 	})
 	if err != nil {
 		log.Fatal(err)
 	}
-
+*/
 	time.Sleep(1 * time.Second)
 
 	go sendJoin(c)
