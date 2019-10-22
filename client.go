@@ -3,6 +3,7 @@ package gosocketio
 import (
 	"github.com/graarh/golang-socketio/transport"
 	"strconv"
+	"net/http"
 )
 
 const (
@@ -57,6 +58,34 @@ func Dial(url string, tr transport.Transport) (*Client, error) {
 
 	return c, nil
 }
+
+// +
+func DialwithConnAndHeader(url string, tr transport.Transport, f interface{}, header http.Header) (*Client, error) {
+	c := &Client{}
+	c.initChannel()
+	c.initMethods()
+
+	var err error
+	//+
+	if (nil != f) {
+		err = c.On(OnConnection, f)
+		if err != nil {
+			return nil, err
+		}
+	}
+	
+	c.conn, err = tr.ConnectWithHeader(url, header)
+	if err != nil {
+		return nil, err
+	}
+	//-
+	go inLoop(&c.Channel, &c.methods)
+	go outLoop(&c.Channel, &c.methods)
+	go pinger(&c.Channel)
+
+	return c, nil
+}
+// -
 
 /**
 Close client connection
