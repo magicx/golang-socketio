@@ -38,6 +38,8 @@ type Transport interface {
 	Get client connection
 	*/
 	Connect(url string) (conn Connection, err error)
+	
+	ConnectWithHeader(url string, header http.Header) (conn Connection, err error)
 
 	/**
 	Handle one server connection
