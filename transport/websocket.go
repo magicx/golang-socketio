@@ -101,7 +101,22 @@ func (wst *WebsocketTransport) Connect(url string) (conn Connection, err error) 
 
 	return &WebsocketConnection{socket, wst}, nil
 }
+// +
+func (wst *WebsocketTransport) ConnectWithHeader(url string, header http.Header) (conn Connection, err error) {
+	//+
+	if (nil == header) {
+		return wst.Connect(url)
+	}
+	
+	dialer := websocket.Dialer{}
+	socket, _, err := dialer.Dial(url, header)
+	if err != nil {
+		return nil, err
+	}
 
+	return &WebsocketConnection{socket, wst}, nil
+}
+// -
 func (wst *WebsocketTransport) HandleConnection(
 	w http.ResponseWriter, r *http.Request) (conn Connection, err error) {
 
